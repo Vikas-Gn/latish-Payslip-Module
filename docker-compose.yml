@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-payslip5
+    restart: always
+    ports:
+      - "5044:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: Payslip_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  backend:
+    build: ./Backend
+    container_name: backend-payslip5
+    ports:
+      - "3077:3077"
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: admin123
+      DB_NAME: Payslip_db
+      DB_HOST: postgres
+      DB_PORT: 5432
+    depends_on:
+      - postgres
+    volumes:
+      - ./Backend:/app
+      - ./logo:/app/logo
+      - ./Employee_Payslip:/app/Employee_Payslip
+      - ./HR_Payslip:/app/HR_Payslip
+
+  employee-payslip:
+    build: ./Employee_Payslip
+    container_name: employee-payslip5
+    ports:
+      - "9024:80"
+    volumes:
+      - ./Employee_Payslip:/usr/share/nginx/html
+
+  hr-payslip:
+    build: ./HR_Payslip
+    container_name: hr-payslip5
+    ports:
+      - "9025:80"
+    volumes:
+      - ./HR_Payslip:/usr/share/nginx/html
+
+volumes:
+  postgres_data:
+
